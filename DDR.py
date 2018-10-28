@@ -17,14 +17,13 @@ class dynamic_distributer:
         self.slow=1
         self.blocktime=blocktime
         
-    def get_inflation(self,timedays,rapidcoef,slowcoef):
-         self.price=get_price(self.token_id)
+    def get_pricefactor(self,timedays):
          self.ROC=get_change(self.token_id,timedays)
-         x=self.ROC
+         y=self.ROC
          k=self.rapid
-         a=self.slow
-         self.inflation= 4/(1+np.exp((x**2/-4*a))) + (1/(0.5+k*x**2)) -2
-         return self.inflation
+         s=self.slow
+         self.pricefactor= ((-4)/(1+np.exp(((y^2)/(-4*s))))+(1/(0.5+(k*(y^2))))-2)
+         return self.pricefactor # only an output, not used for calculations
 
     def get_change(self,timedays):
          cur_block=Get_Height(self.token_id)
@@ -41,14 +40,17 @@ class dynamic_distributer:
         if  0.5 < slow < 8:
             self.slow=slow
     
-    def time_decay(self,halfduration,maxSupply):
+    def time_decay(self,halfduration,maxSupply,slowcoef,rapidcoef):
         #a defining function for a static decay.
         #for the first time definition of the decay.
         # needs adaptation for realtime dynamic changes
         self.halfduration=(halfduration*365*24*60*60)/self.blocktime
-        c=self.duration
+        c=self.duration*2
         self.max=maxSupply
         a=maxSupply;
+        y=self.ROC
+        k=rapidcoef
+        s=slowcoef
         x=GetHeight(self.token_id)
-        self.blockreward=np.log(2)*a/(c*(2**(x/c)))
+        self.blockreward=-((np.ln(2)*a*(( -1*(4/(np.exp(((y^2)/(4*s)))+1)))+(1/((k*(y^2))+0.5))-2)*2^(x*(( -1*(4/(np.exp(((y^2)/(4*s)))+1))+(1/((k*(y^2))+0.5))-2))))/c)
         return self.blockreward
